@@ -87,4 +87,3 @@ app.post('/api/movies', (req, res) => {
   });
   
 
-app.listen(HTTP_PORT, () => console.log(`server listening on: ${HTTP_PORT}`));
