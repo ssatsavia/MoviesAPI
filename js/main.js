@@ -52,7 +52,7 @@ async function loadMovieData(title = null) {
     }
     async function loadMovieDetails(movieId) {
         try {
-            const response = await fetch(`https://web422-2jx9.onrender.com/api/movies/${movieId}`);
+            const response = await fetch(`https://movies-api-one-roan.vercel.app/api/movies/${movieId}`);
             const movie = await response.json();
     
             // Populate the modal with movie details
