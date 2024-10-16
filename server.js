@@ -110,3 +110,4 @@ app.get('/api/movies', (req, res) => {
 app.listen(HTTP_PORT, () => {
     console.log(`Server running on port ${HTTP_PORT}`);
 });
+
