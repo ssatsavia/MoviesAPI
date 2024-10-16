@@ -7,8 +7,7 @@
 *  Name: sage satsavia Student ID: 132238197 Date: _____09/24/2024___________
 *  Vercel Link: _______________________________________________________________
 *
-********************************************************************************/ 
-const express = require('express');
+********************************************************************************/ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const app = express();
@@ -28,7 +27,8 @@ db.initialize(process.env.MONGODB_CONN_STRING)
   .catch((err) => {
     console.error('Error connecting to the database:', err);
   });
-app.get('/', (req, res) => {
+
+  app.get('/', (req, res) => {
     res.json({ message: "API Listening" });
 });
 
