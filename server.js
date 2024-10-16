@@ -33,13 +33,19 @@ app.get('/', (req, res) => {
 });
 
 // POST /api/movies - Add a new movie
-app.post('/api/movies', (req, res) => {
-  db.addNewMovie(req.body)
-    .then((newMovie) => {
-      res.status(201).json(newMovie); // 201 Created
+app.get('/api/movies', (req, res) => {
+  const { page = 1, perPage = 5, title } = req.query;
+  db.getAllMovies(page, perPage, title)
+    .then((movies) => {
+      if (!movies || movies.length === 0) {
+        res.status(404).json({ error: 'No movies found' });
+      } else {
+        res.json(movies);
+      }
     })
     .catch((err) => {
-      res.status(500).json({ error: err.message }); // 500 Internal Server Error
+      console.error('Error retrieving movies:', err); // Detailed log
+      res.status(500).json({ error: 'Failed to retrieve movies' });
     });
 });
   
