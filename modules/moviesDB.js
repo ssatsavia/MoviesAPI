@@ -37,8 +37,7 @@ const movieSchema = new Schema({
     dvd: Date,
     lastUpdated: Date
   }
-}
-);
+});
 
 module.exports = class MoviesDB {
   constructor() {
@@ -49,13 +48,7 @@ module.exports = class MoviesDB {
   // Pass the connection string to `initialize()`
   initialize(connectionString) {
     return new Promise((resolve, reject) => {
-      const db = mongoose.createConnection(
-        connectionString,
-        {
-          useNewUrlParser: true,
-          useUnifiedTopology: true
-        }
-      );
+      const db = mongoose.createConnection(connectionString);
 
       db.once('error', (err) => {
         reject(err);
