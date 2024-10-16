@@ -37,7 +37,8 @@ const movieSchema = new Schema({
     dvd: Date,
     lastUpdated: Date
   }
-});
+}
+);
 
 module.exports = class MoviesDB {
   constructor() {
@@ -48,10 +49,20 @@ module.exports = class MoviesDB {
   // Pass the connection string to `initialize()`
   initialize(connectionString) {
     return new Promise((resolve, reject) => {
-      const db = mongoose.createConnection(connectionString);
-
+      if (!connectionString) {
+        reject(new Error('MongoDB connection string is required'));
+      }
+  
+      const db = mongoose.createConnection(
+        connectionString,
+        {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }
+      );
+  
       db.once('error', (err) => {
-        reject(err);
+        reject(new Error(`Database connection error: ${err.message}`));
       });
       db.once('open', () => {
         this.Movie = db.model("movies", movieSchema);
@@ -61,22 +72,39 @@ module.exports = class MoviesDB {
   }
 
   async addNewMovie(data) {
+    if (!data.title || !data.year) {
+      throw new Error('Title and Year are required fields');
+    }
     const newMovie = new this.Movie(data);
     await newMovie.save();
     return newMovie;
   }
 
   getAllMovies(page, perPage, title) {
-    let findBy = title ? { title } : {};
-
+    let findBy = title ? { title: { $regex: title, $options: 'i' } } : {}; // Title filter with regex for partial matching
+  
     if (+page && +perPage) {
-      return this.Movie.find(findBy).sort({ year: +1 }).skip((page - 1) * +perPage).limit(+perPage).exec();
+      return this.Movie.find(findBy)
+        .sort({ year: +1 })
+        .skip((page - 1) * +perPage)
+        .limit(+perPage)
+        .exec()
+        .then((movies) => {
+          if (movies && movies.length > 0) {
+            return movies;
+          } else {
+            return []; // Return empty array if no movies found
+          }
+        });
     }
-
+  
     return Promise.reject(new Error('page and perPage query parameters must be valid numbers'));
   }
 
   getMovieById(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return Promise.reject(new Error('Invalid movie ID format'));
+    }
     return this.Movie.findOne({ _id: id }).exec();
   }
 
