@@ -21,6 +21,7 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
+
 db.initialize(process.env.MONGODB_CONN_STRING)
   .then(() => {
     console.log('Database connected');

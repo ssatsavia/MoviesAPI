@@ -39,6 +39,13 @@ const movieSchema = new Schema({
   }
 }
 );
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  poolSize: 10,             // Adjust the pool size (number of connections in the pool)
+  connectTimeoutMS: 10000,   // Connection timeout in milliseconds
+  socketTimeoutMS: 45000     // How long MongoDB will wait for responses from the server
+};
 
 module.exports = class MoviesDB {
   constructor() {
@@ -53,19 +60,15 @@ module.exports = class MoviesDB {
         reject(new Error('MongoDB connection string is required'));
       }
   
-      const db = mongoose.createConnection(
-        connectionString,
-        {
-          useNewUrlParser: true,
-          useUnifiedTopology: true
-        }
-      );
+      const db = mongoose.createConnection(connectionString, options);
   
       db.once('error', (err) => {
         reject(new Error(`Database connection error: ${err.message}`));
       });
+  
       db.once('open', () => {
         this.Movie = db.model("movies", movieSchema);
+        console.log('Connected to MongoDB successfully');
         resolve();
       });
     });
@@ -80,27 +83,25 @@ module.exports = class MoviesDB {
     return newMovie;
   }
 
-  getAllMovies(page, perPage, title) {
-    let findBy = title ? { title: { $regex: title, $options: 'i' } } : {}; // Title filter with regex for partial matching
+  async getAllMovies(page, perPage, title) {
+    try {
+      let findBy = title ? { title: { $regex: title, $options: 'i' } } : {}; // Title filter with regex for partial matching
   
-    if (+page && +perPage) {
-      return this.Movie.find(findBy)
-        .sort({ year: +1 })
-        .skip((page - 1) * +perPage)
-        .limit(+perPage)
-        .exec()
-        .then((movies) => {
-          if (movies && movies.length > 0) {
-            return movies;
-          } else {
-            return []; // Return empty array if no movies found
-          }
-        });
+      if (+page && +perPage) {
+        const movies = await this.Movie.find(findBy)
+          .sort({ year: +1 })
+          .skip((page - 1) * +perPage)
+          .limit(+perPage)
+          .exec();
+        return movies.length > 0 ? movies : [];
+      } else {
+        throw new Error('page and perPage query parameters must be valid numbers');
+      }
+    } catch (err) {
+      return Promise.reject(err); // Catch and propagate errors
     }
-  
-    return Promise.reject(new Error('page and perPage query parameters must be valid numbers'));
   }
-
+  
   getMovieById(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return Promise.reject(new Error('Invalid movie ID format'));
