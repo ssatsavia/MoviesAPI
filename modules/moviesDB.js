@@ -42,8 +42,6 @@ const movieSchema = new Schema({
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  connectTimeoutMS: 10000,   // Connection timeout in milliseconds
-  socketTimeoutMS: 45000     // How long MongoDB will wait for responses from the server
 };
 
 module.exports = class MoviesDB {
