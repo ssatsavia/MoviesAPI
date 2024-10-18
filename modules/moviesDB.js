@@ -42,7 +42,6 @@ const movieSchema = new Schema({
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  poolSize: 10,             // Adjust the pool size (number of connections in the pool)
   connectTimeoutMS: 10000,   // Connection timeout in milliseconds
   socketTimeoutMS: 45000     // How long MongoDB will wait for responses from the server
 };
